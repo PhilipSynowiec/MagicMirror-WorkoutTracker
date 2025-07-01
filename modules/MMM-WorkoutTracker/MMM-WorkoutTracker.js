@@ -1,14 +1,14 @@
 Module.register("MMM-WorkoutTracker", {
   defaults: {
     position: "bottom_right",
-    buttonSize: "60px",
-    buttonColor: "#333",
-    buttonHoverColor: "#555",
+    buttonSize: "80px",
+    buttonColor: "#FF6B35",
+    buttonHoverColor: "#FF5722",
     textColor: "#fff",
-    fontSize: "16px",
-    repLogBackground: "rgba(0, 0, 0, 0.7)",
+    fontSize: "20px",
+    repLogBackground: "rgba(0, 0, 0, 0.9)",
     repLogColor: "#fff",
-    repLogFontSize: "18px"
+    repLogFontSize: "20px"
   },
 
   loaded: false,
@@ -48,6 +48,23 @@ Module.register("MMM-WorkoutTracker", {
     this.startRepDetection();
   },
 
+  hideOtherModules: function() {
+    const modules = document.querySelectorAll('.module');
+    modules.forEach(module => {
+      const moduleName = module.className;
+      if (!moduleName.includes('MMM-WorkoutTracker')) {
+        module.style.display = 'none';
+      }
+    });
+  },
+
+  showOtherModules: function() {
+    const modules = document.querySelectorAll('.module');
+    modules.forEach(module => {
+      module.style.display = '';
+    });
+  },
+
   getDom: function () {
     const wrapper = document.createElement("div");
     wrapper.className = "workout-tracker-wrapper";
@@ -59,8 +76,8 @@ Module.register("MMM-WorkoutTracker", {
       button.innerHTML = "💪";
       button.style.cssText = `
         position: fixed;
-        bottom: 20px;
-        right: 20px;
+        bottom: 30px;
+        right: 30px;
         width: ${this.config.buttonSize};
         height: ${this.config.buttonSize};
         background-color: ${this.config.buttonColor};
@@ -69,11 +86,25 @@ Module.register("MMM-WorkoutTracker", {
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: ${this.config.fontSize};
+        font-size: 32px;
         cursor: pointer;
         z-index: 1000;
         transition: all 0.3s ease;
+        box-shadow: 0 4px 20px rgba(255, 107, 53, 0.4);
+        border: 3px solid rgba(255, 255, 255, 0.2);
       `;
+      
+      button.addEventListener("mouseenter", () => {
+        button.style.transform = "scale(1.1)";
+        button.style.background = this.config.buttonHoverColor;
+        button.style.boxShadow = "0 6px 25px rgba(255, 107, 53, 0.6)";
+      });
+      
+      button.addEventListener("mouseleave", () => {
+        button.style.transform = "scale(1)";
+        button.style.background = this.config.buttonColor;
+        button.style.boxShadow = "0 4px 20px rgba(255, 107, 53, 0.4)";
+      });
       
       button.addEventListener("click", () => {
         this.workoutActive = true;
@@ -82,6 +113,7 @@ Module.register("MMM-WorkoutTracker", {
         this.currentRepCount = 0;
         this.targetReps = 0;
         this.isCountingUp = false;
+        this.hideOtherModules();
         this.updateDom();
       });
       
@@ -95,46 +127,114 @@ Module.register("MMM-WorkoutTracker", {
         left: 0;
         width: 100vw;
         height: 100vh;
-        background: transparent;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         z-index: 9999;
         display: flex;
         flex-direction: column;
+        align-items: center;
+        justify-content: center;
       `;
+
+      // Main workout display in center
+      const workoutDisplay = document.createElement("div");
+      workoutDisplay.style.cssText = `
+        background: rgba(0, 0, 0, 0.8);
+        padding: 40px;
+        border-radius: 20px;
+        text-align: center;
+        backdrop-filter: blur(15px);
+        border: 2px solid rgba(255, 255, 255, 0.1);
+        min-width: 400px;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+      `;
+
+      const workoutTitle = document.createElement("h1");
+      workoutTitle.innerHTML = "💪 WORKOUT MODE";
+      workoutTitle.style.cssText = `
+        color: #FF6B35;
+        font-size: 36px;
+        margin-bottom: 20px;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+      `;
+
+      const currentExerciseDisplay = document.createElement("div");
+      currentExerciseDisplay.style.cssText = `
+        color: white;
+        font-size: 28px;
+        margin-bottom: 15px;
+        font-weight: bold;
+      `;
+      
+      if (this.currentExercise) {
+        currentExerciseDisplay.innerHTML = `Current: ${this.currentExercise}`;
+      } else {
+        currentExerciseDisplay.innerHTML = "Ready to start!";
+      }
+
+      const repDisplay = document.createElement("div");
+      repDisplay.style.cssText = `
+        color: #4CAF50;
+        font-size: 48px;
+        font-weight: bold;
+        margin-bottom: 20px;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+      `;
+      
+      if (this.isCountingUp && this.currentExercise) {
+        repDisplay.innerHTML = `${this.currentRepCount} / ${this.targetReps}`;
+      } else {
+        repDisplay.innerHTML = "💪";
+      }
+
+      workoutDisplay.appendChild(workoutTitle);
+      workoutDisplay.appendChild(currentExerciseDisplay);
+      workoutDisplay.appendChild(repDisplay);
 
       // Rep log in top left
       const repLogContainer = document.createElement("div");
       repLogContainer.className = "rep-log-container";
       repLogContainer.style.cssText = `
         position: absolute;
-        top: 20px;
-        left: 20px;
+        top: 30px;
+        left: 30px;
         background: ${this.config.repLogBackground};
         color: ${this.config.repLogColor};
-        padding: 15px;
-        border-radius: 10px;
-        max-width: 300px;
+        padding: 20px;
+        border-radius: 15px;
+        max-width: 350px;
         font-size: ${this.config.repLogFontSize};
-        backdrop-filter: blur(10px);
+        backdrop-filter: blur(15px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
       `;
 
       const repLogTitle = document.createElement("div");
-      repLogTitle.innerHTML = "<strong>WORKOUT LOG</strong>";
-      repLogTitle.style.marginBottom = "10px";
+      repLogTitle.innerHTML = "<strong>📊 WORKOUT LOG</strong>";
+      repLogTitle.style.cssText = `
+        margin-bottom: 15px;
+        font-size: 18px;
+        color: #FF6B35;
+      `;
       repLogContainer.appendChild(repLogTitle);
 
       const repLogContent = document.createElement("div");
       repLogContent.className = "rep-log-content";
       
       if (this.repLog.length === 0) {
-        repLogContent.innerHTML = "<em>AI will detect and log your reps automatically...</em>";
+        repLogContent.innerHTML = "<em style='color: #888;'>AI will detect and log your reps automatically...</em>";
       } else {
         this.repLog.forEach(entry => {
           const logEntry = document.createElement("div");
-          logEntry.style.marginBottom = "5px";
+          logEntry.style.cssText = `
+            margin-bottom: 8px;
+            padding: 5px;
+            border-radius: 5px;
+            background: rgba(255, 255, 255, 0.05);
+          `;
           if (entry.isCounting) {
-            logEntry.innerHTML = `<span style="color: #FFD700;">${entry.exercise}: ${entry.currentRep}...</span>`;
+            logEntry.innerHTML = `<span style="color: #FFD700;">🔄 ${entry.exercise}: ${entry.currentRep}...</span>`;
           } else {
-            logEntry.innerHTML = `<span style="color: #4CAF50;">${entry.exercise}: ${entry.finalReps} reps</span>`;
+            logEntry.innerHTML = `<span style="color: #4CAF50;">✅ ${entry.exercise}: ${entry.finalReps} reps</span>`;
           }
           repLogContent.appendChild(logEntry);
         });
@@ -147,20 +247,32 @@ Module.register("MMM-WorkoutTracker", {
       closeButton.innerHTML = "✕";
       closeButton.style.cssText = `
         position: absolute;
-        top: 20px;
-        right: 20px;
-        width: 40px;
-        height: 40px;
-        background-color: rgba(255, 0, 0, 0.8);
+        top: 30px;
+        right: 30px;
+        width: 50px;
+        height: 50px;
+        background-color: rgba(255, 0, 0, 0.9);
         color: white;
         border-radius: 50%;
         display: flex;
         align-items: center;
         justify-content: center;
         cursor: pointer;
-        font-size: 18px;
+        font-size: 24px;
         z-index: 10000;
+        box-shadow: 0 4px 15px rgba(255, 0, 0, 0.4);
+        transition: all 0.3s ease;
       `;
+      
+      closeButton.addEventListener("mouseenter", () => {
+        closeButton.style.transform = "scale(1.1)";
+        closeButton.style.background = "rgba(255, 0, 0, 1)";
+      });
+      
+      closeButton.addEventListener("mouseleave", () => {
+        closeButton.style.transform = "scale(1)";
+        closeButton.style.background = "rgba(255, 0, 0, 0.9)";
+      });
       
       closeButton.addEventListener("click", () => {
         this.workoutActive = false;
@@ -169,9 +281,11 @@ Module.register("MMM-WorkoutTracker", {
         this.currentRepCount = 0;
         this.targetReps = 0;
         this.isCountingUp = false;
+        this.showOtherModules();
         this.updateDom();
       });
 
+      overlay.appendChild(workoutDisplay);
       overlay.appendChild(repLogContainer);
       overlay.appendChild(closeButton);
       wrapper.appendChild(overlay);
