@@ -17,7 +17,6 @@ Module.register("MMM-WorkoutTracker", {
   showWorkoutSession: false,
   currentExercise: null,
   currentRepCount: 0,
-  targetReps: 0,
   isCountingUp: false,
   workoutActive: false,
   repLog: [],
@@ -36,7 +35,6 @@ Module.register("MMM-WorkoutTracker", {
     this.showWorkoutSession = false;
     this.currentExercise = null;
     this.currentRepCount = 0;
-    this.targetReps = 0;
     this.isCountingUp = false;
     this.workoutActive = false;
     this.repLog = [];
@@ -111,7 +109,6 @@ Module.register("MMM-WorkoutTracker", {
         this.repLog = [];
         this.currentExercise = null;
         this.currentRepCount = 0;
-        this.targetReps = 0;
         this.isCountingUp = false;
         this.hideOtherModules();
         this.updateDom();
@@ -180,9 +177,11 @@ Module.register("MMM-WorkoutTracker", {
       `;
       
       if (this.isCountingUp && this.currentExercise) {
-        repDisplay.innerHTML = `${this.currentRepCount} / ${this.targetReps}`;
+        repDisplay.innerHTML = `${this.currentRepCount}`;
+        repDisplay.className = "rep-display counting";
       } else {
         repDisplay.innerHTML = "💪";
+        repDisplay.className = "rep-display";
       }
 
       workoutDisplay.appendChild(workoutTitle);
@@ -230,11 +229,7 @@ Module.register("MMM-WorkoutTracker", {
             border-radius: 3px;
             background: rgba(255, 255, 255, 0.05);
           `;
-          if (entry.isCounting) {
-            logEntry.innerHTML = `<span style="color: #FFD700;">${entry.exercise}: ${entry.currentRep}...</span>`;
-          } else {
-            logEntry.innerHTML = `<span style="color: #4CAF50;">${entry.exercise}: ${entry.finalReps} reps</span>`;
-          }
+          logEntry.innerHTML = `<span style="color: #4CAF50;">${entry.exercise}: ${entry.reps} reps</span>`;
           repLogContent.appendChild(logEntry);
         });
       }
@@ -277,7 +272,6 @@ Module.register("MMM-WorkoutTracker", {
         this.repLog = [];
         this.currentExercise = null;
         this.currentRepCount = 0;
-        this.targetReps = 0;
         this.isCountingUp = false;
         this.showOtherModules();
         this.updateDom();
@@ -414,34 +408,31 @@ Module.register("MMM-WorkoutTracker", {
           // Start a new exercise set
           const exercises = ["Push-ups", "Pull-ups", "Squats", "Lunges", "Burpees", "Planks"];
           this.currentExercise = exercises[Math.floor(Math.random() * exercises.length)];
-          this.targetReps = Math.floor(Math.random() * 15) + 5; // 5-20 reps
-          this.currentRepCount = 1;
+          this.currentRepCount = 0;
           this.isCountingUp = true;
-          
-          // Add to log as counting
-          this.repLog.push({
-            exercise: this.currentExercise,
-            currentRep: 1,
-            finalReps: this.targetReps,
-            isCounting: true
-          });
         } else {
           // Continue counting up
           this.currentRepCount++;
           
-          // Update the last entry
-          const lastEntry = this.repLog[this.repLog.length - 1];
-          lastEntry.currentRep = this.currentRepCount;
+          // Randomly end the set (more realistic - user doesn't know target)
+          const shouldEndSet = Math.random() < 0.15; // 15% chance to end set each rep
           
-          if (this.currentRepCount >= this.targetReps) {
-            // Finished the set
-            lastEntry.isCounting = false;
+          if (shouldEndSet && this.currentRepCount >= 5) { // Minimum 5 reps
+            // Finished the set - add to log
+            this.repLog.push({
+              exercise: this.currentExercise,
+              reps: this.currentRepCount
+            });
+            
+            // Reset for next exercise
             this.isCountingUp = false;
+            this.currentRepCount = 0;
+            this.currentExercise = null;
           }
         }
         
         this.updateDom();
       }
-    }, 800 + Math.random() * 400); // Random interval between 0.8-1.2 seconds for realistic counting
+    }, 1000 + Math.random() * 500); // Random interval between 1-1.5 seconds for realistic counting
   }
 });
