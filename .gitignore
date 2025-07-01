@@ -68,8 +68,8 @@ Temporary Items
 !/css/custom.css.sample
 !/css/main.css
 
-# Ignore users config file but keep the sample.
-/config/*
+# Ignore users config file but keep the sample
+!/config/*
 !/config/config.js.sample
 
 # Vim
@@ -84,3 +84,7 @@ Temporary Items
 
 # Ignore positions file (#3518)
 js/positions.js
+
+# Allow custom modules in root directory
+!/MMM-WorkoutTracker/
+!/MMM-WorkoutTracker/*
