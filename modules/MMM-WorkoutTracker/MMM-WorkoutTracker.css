@@ -1,0 +1,33 @@
+/* MMM-WorkoutTracker Styles */
+
+.workout-tracker-wrapper {
+    position: relative;
+}
+
+.workout-button:hover {
+    transform: scale(1.1);
+}
+
+.rep-log-container {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    backdrop-filter: blur(10px);
+}
+
+.rep-log-content {
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+.rep-log-content::-webkit-scrollbar {
+    width: 4px;
+}
+
+.rep-log-content::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 2px;
+}
+
+.rep-log-content::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 2px;
+} 

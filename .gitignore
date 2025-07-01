@@ -57,19 +57,21 @@ Temporary Items
 .directory
 .Trash-*
 
-# Ignore all modules except the default modules.
+# Ignore all modules except the default modules and custom modules.
 /modules/**
 !/modules/default
 !/modules/default/**
 !/modules/README.md**
+!/modules/MMM-*/
+!/modules/MMM-*/**
 
 # Ignore changes to the custom css files but keep the sample and main.
 /css/*
 !/css/custom.css.sample
 !/css/main.css
 
-# Ignore users config file but keep the sample
-!/config/*
+# Allow config files but keep the sample
+/config/*
 !/config/config.js.sample
 
 # Vim
